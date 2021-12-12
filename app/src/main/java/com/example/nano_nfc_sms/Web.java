@@ -12,7 +12,7 @@ import com.google.androidbrowserhelper.trusted.TwaLauncher;
 import android.os.Bundle;
 
 public class Web extends AppCompatActivity {
-    Uri t = Uri.parse("http://192.168.2.230:4200/");
+    Uri t = Uri.parse("https://google.com/");
     TwaLauncher launcher;
     private boolean mBrowserWasLaunched;
     @Override
@@ -26,12 +26,9 @@ public class Web extends AppCompatActivity {
     public void launchTwa(Uri uri) {
         TrustedWebActivityIntentBuilder builder = new TrustedWebActivityIntentBuilder(uri);
         launcher= new TwaLauncher(this);
-        //launcher.launch(builder,null,null);
         launcher.launch(builder, null, null, null);
         mBrowserWasLaunched = true;
-        //launcher.launch(uri);
-        //launcher.launch();
-        //launcher.launch(builder, null, null);
+
     }
 
     @Override

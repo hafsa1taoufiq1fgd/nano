@@ -32,14 +32,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(),Web.class));
             }
         });
-
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         TextView textIpaddr = (TextView) findViewById(R.id.ipaddr);
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
@@ -54,13 +51,15 @@ public class MainActivity extends AppCompatActivity {
     public void test(View v){
        /* Intent intent = new Intent(this, MainActivity2.class);
         startActivity(intent);*/
-
         Intent intent = new Intent(this, Web.class);
         startActivity(intent);
+    }
+    public void stop(View v){
+        stopService(new Intent(this, NanoService.class));
     }
     @Override
     public void onStop() {
         super.onStop();
-        stopService(new Intent(this, NanoService.class));
+       // stopService(new Intent(this, NanoService.class));
     }
 }

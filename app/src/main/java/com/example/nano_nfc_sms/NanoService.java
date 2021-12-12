@@ -28,13 +28,13 @@ public class NanoService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        //throw new UnsupportedOperationException("Not yet implemented");
+        return null;
     }
     @Override
     public void onCreate() {
         Toast.makeText(this, "service Httpd Creation", Toast.LENGTH_SHORT).show();
         try {
-
             this.server.start();
             System.out.println(server.toString());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -42,7 +42,6 @@ public class NanoService extends Service {
             else {
                 startForeground(1, new Notification());
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,14 +54,13 @@ public class NanoService extends Service {
     @Override
     public void onDestroy() {
         //isRunning = false;
+        System.out.println("done");
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
     }
     public void startMyOwnForeground(){
         Intent intent = new Intent(this, MainActivity.class);
-
         PendingIntent pendingIntent = PendingIntent.getActivity(this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-
             String NOTIFICATION_CHANNEL_ID = "com.example.nano_nfc_sms";
             String channelName = "My Background Service";
             NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
