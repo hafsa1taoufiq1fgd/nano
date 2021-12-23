@@ -53,13 +53,13 @@ public class Nfc_reader extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc_reader);
         context = this;
-        tvNFCContent = (TextView) findViewById(R.id.nfc_content);
+        /* tvNFCContent = (TextView) findViewById(R.id.nfc_content);
         NumSerie = (TextView) findViewById(R.id.NumSerie);
         Technologies = (TextView) findViewById(R.id.Technologies);
         CardType = (TextView) findViewById(R.id.CardType);
         IsWritable = (TextView) findViewById(R.id.IsWritable);
         ReadOnly = (TextView) findViewById(R.id.ReadOnly);
-        Tail = (TextView) findViewById(R.id.Tail);
+        Tail = (TextView) findViewById(R.id.Tail);*/
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
@@ -113,7 +113,7 @@ public class Nfc_reader extends Activity {
         } catch (UnsupportedEncodingException e) {
             Log.e("UnsupportedEncoding", e.toString());
         }
-        tvNFCContent.setText("NFC Content: " + text);
+        //tvNFCContent.setText("NFC Content: " + text);
     }
 
 
@@ -186,7 +186,7 @@ public class Nfc_reader extends Activity {
             }
             Log.i("EHEHEHEHEHE",hexdump);
             System.out.println("ID ++++++"+hexdump);
-            NumSerie.setText("Numero de serie " + hexdump);
+            //NumSerie.setText("Numero de serie " + hexdump);
             nfc.setNumero_Serie(hexdump);
 
 
@@ -197,7 +197,7 @@ public class Nfc_reader extends Activity {
             techListConcat += techList[techList.length-1].substring(prefix.length());
             info[0] += techListConcat.substring(0, techListConcat.length() - 1) + "\n\n";
 //            System.out.println("info ++++++"+techListConcat);
-            Technologies.setText(techListConcat);
+            //Technologies.setText(techListConcat);
             nfc.setTechnologies(techListConcat);
 
             /////////
@@ -249,7 +249,7 @@ public class Nfc_reader extends Activity {
                     }
                     info2[0] += "Mifare " + type;
 
-                    CardType.setText(info2[0]);
+                    //CardType.setText(info2[0]);
                     nfc.setType_card(info2[0]);
                     System.out.println("info size "+mifareUlTag.getMaxTransceiveLength());
 
@@ -260,9 +260,9 @@ public class Nfc_reader extends Activity {
                     info[0] = "Is Writable: " + ndefTag.isWritable();
                     info[1] ="Read Only: " + ndefTag.canMakeReadOnly() ;
                     System.out.println(info[0]);
-                    IsWritable.setText(info[0]);
-                    ReadOnly.setText(info[1]);
-                    Tail.setText("Tail: "+ndefTag.getMaxSize()+" Bytes");
+                    //IsWritable.setText(info[0]);
+                    //ReadOnly.setText(info[1]);
+                    //Tail.setText("Tail: "+ndefTag.getMaxSize()+" Bytes");
 
 
                 }

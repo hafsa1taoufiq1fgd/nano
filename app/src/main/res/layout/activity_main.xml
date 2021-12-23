@@ -21,17 +21,9 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start"
+        android:text="Start Stalker"
         android:background="#3f76ff"
         android:textColor="#fff"
         android:id="@+id/start"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Stop"
-        android:onClick="stop"
-        android:background="#3f76ff"
-        android:textColor="#fff"
-        android:id="@+id/stop"/>
 
 </LinearLayout>
