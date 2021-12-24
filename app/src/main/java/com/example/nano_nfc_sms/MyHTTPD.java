@@ -64,6 +64,7 @@ public class MyHTTPD extends  NanoHTTPD{
             }
 
             if (uri.equals("/nfc")) {
+                Nfc.putNull();
                 // mcontext=mActivity.getApplicationContext();
                 System.out.println(mcontext.toString());
                 Intent i = new Intent();
@@ -102,6 +103,7 @@ public class MyHTTPD extends  NanoHTTPD{
                 resp.addHeader("Access-Control-Allow-Credentials", "true");
                 resp.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
                 return resp;
+
             }
             if (uri.equals("/sms")) {
                 String verf_code=SMS.SendSMS(num);

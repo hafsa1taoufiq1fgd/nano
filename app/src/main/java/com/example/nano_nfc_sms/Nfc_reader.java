@@ -1,11 +1,7 @@
 package com.example.nano_nfc_sms;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
-
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -27,18 +23,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class Nfc_reader extends Activity {
     NfcAdapter nfcAdapter;
     PendingIntent pendingIntent;
     IntentFilter writeTagFilters[];
     boolean writeMode;
-    Tag myTag;
     Context context;
     TextView tvNFCContent;
     TextView NumSerie;
@@ -48,6 +43,7 @@ public class Nfc_reader extends Activity {
     TextView IsWritable;
     TextView ReadOnly;
     TextView Tail;
+    Tag myTag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,14 +75,11 @@ public class Nfc_reader extends Activity {
 
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
         System.out.println("TagDetect" + tagDetected);
-
         writeTagFilters = new IntentFilter[]{tagDetected, techDetected, NdefDetected};
         //writeTagFilters = new IntentFilter[] { tagDetected };
-
-
-
+        ///////////////
+        //////////////
     }
-
 
     private void readFromIntent(Intent intent) {
         String action = intent.getAction();
@@ -101,6 +94,7 @@ public class Nfc_reader extends Activity {
                     msgs[i] = (NdefMessage) rawMsgs[i];
                 }
             }
+
             buildTagViews(msgs);
             System.out.println("Format "+intent.getType());
             System.out.println("data "+intent.getData());
@@ -125,10 +119,6 @@ public class Nfc_reader extends Activity {
         }
         //tvNFCContent.setText("NFC Content: " + text);
     }
-
-
-
-
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
@@ -137,7 +127,32 @@ public class Nfc_reader extends Activity {
 //        Toast.makeText(this,"action"+intent.getAction(),Toast.LENGTH_SHORT).show();
         if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())){
             myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            MifareUltralight mu =MifareUltralight.get(myTag);
+            try {
+                mu.connect();
 
+                byte[] response =mu.transceive(new byte[] {(byte) 0x30,(byte)(0x10 & 0x0FF)});
+
+                if(response[3]!=4){
+                    mu.transceive(new byte[]{
+                            (byte) 0xA2,(byte)(0x12 & 0x0FF),
+                            (byte)0x0FF, (byte)0x0FF, (byte)0x0FF, (byte)0x0FF});
+                    mu.transceive(new byte[] {(byte) 0xA2,(byte)(0x10 & 0x0FF), (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04});
+                }
+                mu.close();
+//
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //////////////
+            try {
+                System.out.println("------ write UUID ----");
+                write(myTag);
+            } catch (IOException e) {
+                error(e.getMessage());
+            } catch (FormatException e) {
+                error(e.getMessage());
+            }
             /////////////////
 
             String hexdump = new String();
@@ -286,7 +301,7 @@ public class Nfc_reader extends Activity {
                     Thread.currentThread().interrupt();
                 }
             }
-            finish();
+            //finish();
         }
     }
     private void buildTagViews1(NdefMessage[] msgs) {
@@ -308,7 +323,7 @@ public class Nfc_reader extends Activity {
                 Log.e("UnsupportedEncoding", e.toString());
             }
             Nfc.setUUID(text);
-            //toast("UUID"+text);
+            toast("UUID"+text);
             //toast("The UUID : \n\n"+text);
 
 
@@ -348,11 +363,7 @@ public class Nfc_reader extends Activity {
             if(rawMsgs==null){
                 System.out.println("Failed to Read the tag.");
             }
-
-
         }
-
-
     }
 
     @Override
@@ -386,5 +397,119 @@ public class Nfc_reader extends Activity {
                 .setPositiveButton("OK",null)
                 .show();
     }
+    private void error(String text) {
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage(text)
+                .setPositiveButton("OK",null)
+                .show();
+    }
+    /************************************ Write Tag ***********************************/
+    UUID uuid =UUID.randomUUID();;
+    private void write(Tag myTag) throws IOException, FormatException {
+        NdefRecord[] records = {createRecord(uuid.toString())};
+        NdefMessage message = new NdefMessage(records);
+        NfcA nfca = NfcA.get(myTag);
+        System.out.println("nfca"+nfca);
+        if (myTag == null) {
+            error("Read the card again");
+        }
+        if (!nfca.isConnected()) {
+            System.out.println("not connect");
+            nfca.connect();
+        }
+        System.out.println("yes");
+        System.out.println("uuid " + uuid);
+
+        nfca.transceive(new byte[]{
+                (byte) 0x1B,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+        });
+        nfca.transceive(new byte[]{(byte) 0xA2, (byte) (0x10 & 0x0FF), 0x00, 0x00, (byte) 0x00, (byte) 0xFF});
+        nfca.close();
+        Ndef ndef=null;
+        int size = message.toByteArray().length;
+        try {
+            System.out.println("1111111111111111111111111111111111");
+            if (nfca.isConnected()) {
+                System.out.println("close NFCA");
+                nfca.close();
+            }
+            System.out.println("22222222222222222222222222222");
+            ndef= Ndef.get(myTag);
+            System.out.println("ndef"+ndef);
+            if (ndef != null) {
+                System.out.println("Open");
+                ndef.connect();
+                System.out.println("33333333333333333333333333333");
+                if (!ndef.isWritable()) {
+                    Toast.makeText(this, "Tag is read-only.", Toast.LENGTH_LONG).show();
+                }
+                if (ndef.getMaxSize() < size) {
+                    System.out.println("4444444444444444444444444444444444444444");
+                    error("Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size
+                            + " bytes.");
+                }
+                System.out.println("44444444444444444444444444444444");
+                System.out.println(message.toString());
+                ndef.writeNdefMessage(message);
+                System.out.println("5555555555555555555555555555555555");
+                toast("The UUID was successfully written.");
+                long id = System.currentTimeMillis();
+                ndef.close();
+                System.out.println("6666666666666666666666666666666");
+                System.out.println("ClosedNDEF");
+            }
+
+        } catch (Exception e) {
+            System.out.println("/n ********************************************** /n");
+            System.out.println(e.toString());
+            error("Failed to write tag nn"+e.toString());
+        }
+
+        if(nfca.isConnected()){
+            System.out.println("closed1");
+            nfca.close();
+        }
+
+        NfcA nfca1 = NfcA.get(myTag);
+        if(ndef.isConnected()){
+            ndef.close();
+        }
+        /*if(nfca.isConnected()){
+            nfca.close();
+        }*/
+
+        if(!nfca1.isConnected()) {
+            System.out.println("/n NFCA1 *****************");
+            nfca1.connect();
+            nfca1.transceive(new byte[] {(byte) 0xA2,(byte)(0x12 & 0x0FF),(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+            nfca1.transceive(new byte[] {(byte) 0xA2,(byte)(0x13 & 0x0FF), (byte) 0xFF , (byte) 0xFF , (byte) 0x00, (byte) 0x00});
+            nfca1.transceive(new byte[] {(byte) 0xA2,(byte)(0x10 & 0x0FF),  0x00,  0x00, (byte) 0x00, (byte) 0x04});
+        }
+        System.out.println("/n close NFCA1 *****************");
+         nfca1.close();
+
+    }
+
+    private NdefRecord createRecord(String text) throws UnsupportedEncodingException {
+        String lang       = "en";
+        byte[] textBytes  = text.getBytes();
+        byte[] langBytes  = lang.getBytes("US-ASCII");
+        int    langLength = langBytes.length;
+        int    textLength = textBytes.length;
+        byte[] payload    = new byte[1 + langLength + textLength];
+
+        payload[0] = (byte) langLength;
+
+        System.arraycopy(langBytes, 0, payload, 1,              langLength);
+        System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength);
+
+        NdefRecord recordNFC = new NdefRecord(NdefRecord.TNF_WELL_KNOWN,  NdefRecord.RTD_TEXT,  new byte[0], payload);
+
+        return recordNFC;
+    }
+
+    /******************************************************************************************/
 
 }

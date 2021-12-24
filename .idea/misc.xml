@@ -7,6 +7,8 @@
         <entry key="..\:/Projets-Mobile/Nano_nfc_sms/app/src/main/res/layout/activity_main2.xml" value="0.1" />
         <entry key="..\:/Projets-Mobile/Nano_nfc_sms/app/src/main/res/layout/activity_nfc_reader.xml" value="0.10144927536231885" />
         <entry key="..\:/Projets-Mobile/Nano_nfc_sms/app/src/main/res/layout/activity_read_nfc.xml" value="0.1" />
+        <entry key="..\:/Projets-Mobile/Nano_nfc_sms/app/src/main/res/layout/activity_write_nfc.xml" value="0.1" />
+        <entry key="..\:/Projets-Mobile/Nano_nfc_sms/app/src/main/res/layout/activity_writeuuid.xml" value="0.13903985507246377" />
       </map>
     </option>
   </component>

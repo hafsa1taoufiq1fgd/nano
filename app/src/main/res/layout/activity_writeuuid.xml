@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+    <TextView
+        android:id="@+id/write"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Write on the Card plz hold"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="NFC"
+        android:background="#3f76ff"
+        android:textColor="#fff"
+        android:onClick="write"
+        android:id="@+id/nfc"/>
+
+
+</LinearLayout>

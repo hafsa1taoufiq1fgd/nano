@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nfc(View v){
+        startActivity(new Intent(getApplicationContext(),Writeuuid.class));
+    }
+    public void read(View v){
         startActivity(new Intent(getApplicationContext(),Nfc_reader.class));
     }
 }

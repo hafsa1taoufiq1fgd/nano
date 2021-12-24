@@ -52,4 +52,10 @@ public class Nfc {
                 "\"Technologies\":\""+Technologies+"\","+"\"UUID\":\""+UUID+"\","+"\"Type_card\":\""+Type_card+"\"}";
             return valueJson;
     }
+    public static void putNull(){
+        Numero_Serie=null;
+        Technologies=null;
+        Type_card=null;
+        UUID=null;
+    }
 }
