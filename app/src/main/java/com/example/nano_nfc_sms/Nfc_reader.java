@@ -2,6 +2,7 @@ package com.example.nano_nfc_sms;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 
@@ -72,7 +73,16 @@ public class Nfc_reader extends Activity {
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
-        writeTagFilters = new IntentFilter[] { tagDetected };
+        //IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        IntentFilter techDetected = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        IntentFilter NdefDetected = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+
+        tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
+        System.out.println("TagDetect" + tagDetected);
+
+        writeTagFilters = new IntentFilter[]{tagDetected, techDetected, NdefDetected};
+        //writeTagFilters = new IntentFilter[] { tagDetected };
+
 
 
     }
@@ -123,13 +133,12 @@ public class Nfc_reader extends Activity {
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         readFromIntent(intent);
+        readFromIntent1(intent);
 //        Toast.makeText(this,"action"+intent.getAction(),Toast.LENGTH_SHORT).show();
         if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())){
             myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
             /////////////////
-
-
 
             String hexdump = new String();
             String hexdump2 = new String();
@@ -204,7 +213,6 @@ public class Nfc_reader extends Activity {
             info2[0] = "Card Type: ";
             String type = "Unknown";
             for(int i = 0; i < techList.length; i++) {
-
                 if(techList[i].equals(MifareClassic.class.getName())) {
                     info2[1] = "Mifare Classic";
                     MifareClassic mifareClassicTag = MifareClassic.get(myTag);
@@ -240,7 +248,6 @@ public class Nfc_reader extends Activity {
                         case MifareUltralight.TYPE_ULTRALIGHT:
                             type = "Ultralight";
                             numberOfPages = 16;
-
                             break;
                         case MifareUltralight.TYPE_ULTRALIGHT_C:
                             type = "Ultralight C";
@@ -282,6 +289,71 @@ public class Nfc_reader extends Activity {
             finish();
         }
     }
+    private void buildTagViews1(NdefMessage[] msgs) {
+        if (msgs == null || msgs.length == 0) return;
+        String text = "";
+        byte[] payload = msgs[0].getRecords()[0].getPayload();
+        if(payload.length!=0){
+            System.out.println("payload"+payload.length);
+
+            for (int i=0;i<payload.length;i++) {
+                System.out.println("payload"+payload[i]);
+            }
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+            int languageCodeLength = payload[0] & 0063;
+
+            try {
+                text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+            } catch (UnsupportedEncodingException e) {
+                Log.e("UnsupportedEncoding", e.toString());
+            }
+            Nfc.setUUID(text);
+            //toast("UUID"+text);
+            //toast("The UUID : \n\n"+text);
+
+
+        }else{
+            System.out.println("The card is empty");
+        }
+
+    }
+    private void readFromIntent1(Intent intent) {
+        String action = intent.getAction();
+        NdefMessage[] msgs = null;
+
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            if (rawMsgs != null) {
+                msgs = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    msgs[i] = (NdefMessage) rawMsgs[i];
+                }
+                buildTagViews1(msgs);
+                System.out.println(msgs);
+
+            } else {
+                byte[] empty = new byte[]{};
+                NdefRecord record = new NdefRecord(NdefRecord.TNF_UNKNOWN, empty, empty, empty);
+                NdefMessage msg = new NdefMessage(new NdefRecord[]{
+                        record
+                });
+                msgs = new NdefMessage[]{
+                        msg
+                };
+                System.out.println("2");
+                Toast.makeText(this, "Unknown tag type:" + msgs, Toast.LENGTH_LONG);
+            }
+            if(rawMsgs==null){
+                System.out.println("Failed to Read the tag.");
+            }
+
+
+        }
+
+
+    }
 
     @Override
     public void onPause(){
@@ -306,6 +378,13 @@ public class Nfc_reader extends Activity {
     private void WriteModeOff(){
         writeMode = false;
         nfcAdapter.disableForegroundDispatch(this);
+    }
+    private void toast(String text) {
+        new AlertDialog.Builder(this)
+                .setTitle("Result")
+                .setMessage(text)
+                .setPositiveButton("OK",null)
+                .show();
     }
 
 }

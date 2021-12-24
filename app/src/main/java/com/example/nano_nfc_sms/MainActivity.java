@@ -62,4 +62,8 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
        // stopService(new Intent(this, NanoService.class));
     }
+
+    public void nfc(View v){
+        startActivity(new Intent(getApplicationContext(),Nfc_reader.class));
+    }
 }
