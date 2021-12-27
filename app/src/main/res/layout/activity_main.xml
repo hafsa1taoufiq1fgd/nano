@@ -25,22 +25,6 @@
         android:background="#3f76ff"
         android:textColor="#fff"
         android:id="@+id/start"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="NFC"
-        android:background="#3f76ff"
-        android:textColor="#fff"
-        android:onClick="nfc"
-        android:id="@+id/nfc"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="NFC"
-        android:background="#3f76ff"
-        android:textColor="#fff"
-        android:onClick="read"
-        android:id="@+id/read"/>
 
 
 </LinearLayout>

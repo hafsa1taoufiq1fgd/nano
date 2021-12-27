@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class Nfc_reader extends Activity {
     NfcAdapter nfcAdapter;
@@ -37,6 +38,7 @@ public class Nfc_reader extends Activity {
     Context context;
     TextView tvNFCContent;
     TextView NumSerie;
+    String uuidr="test123";
     TextView Technologies;
     TextView CardType;
     Nfc nfc=new Nfc();
@@ -94,7 +96,7 @@ public class Nfc_reader extends Activity {
                     msgs[i] = (NdefMessage) rawMsgs[i];
                 }
             }
-
+           System.out.println("mesg : ----------------- \n"+msgs);
             buildTagViews(msgs);
             System.out.println("Format "+intent.getType());
             System.out.println("data "+intent.getData());
@@ -107,15 +109,18 @@ public class Nfc_reader extends Activity {
         String text = "";
 //        String tagId = new String(msgs[0].getRecords()[0].getType());
         byte[] payload = msgs[0].getRecords()[0].getPayload();
-        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16"; // Get the Text Encoding
-        int languageCodeLength = payload[0] & 0063; // Get the Language Code, e.g. "en"
-        // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
+        if(payload.length!=0) {
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+            // Get the Text Encoding
+            int languageCodeLength = payload[0] & 0063;// Get the Language Code, e.g. "en"
+            // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
 
-        try {
-            // Get the Text
-            text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
-        } catch (UnsupportedEncodingException e) {
-            Log.e("UnsupportedEncoding", e.toString());
+            try {
+                // Get the Text
+                text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+            } catch (UnsupportedEncodingException e) {
+                Log.e("UnsupportedEncoding", e.toString());
+            }
         }
         //tvNFCContent.setText("NFC Content: " + text);
     }
@@ -145,14 +150,21 @@ public class Nfc_reader extends Activity {
                 e.printStackTrace();
             }
             //////////////
-            try {
-                System.out.println("------ write UUID ----");
-                write(myTag);
-            } catch (IOException e) {
-                error(e.getMessage());
-            } catch (FormatException e) {
-                error(e.getMessage());
+            if(!Pattern.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", this.uuidr)) {
+               try {
+                   System.out.println("------ write UUID ----");
+                   //Toast.makeText(this, "NO UUID Valide" , Toast.LENGTH_LONG);
+                   //toast("NO UUID Valid");
+                   //System.out.println("------ write UUID1 ----");
+                    write(myTag);
+                } catch (IOException e) {
+                    error(e.getMessage());
+                } catch (FormatException e) {
+                    error(e.getMessage());
+                }
+
             }
+
             /////////////////
 
             String hexdump = new String();
@@ -223,6 +235,7 @@ public class Nfc_reader extends Activity {
 //            System.out.println("info ++++++"+techListConcat);
             //Technologies.setText(techListConcat);
             nfc.setTechnologies(techListConcat);
+            //Nfc.setUUID(this.uuidr);
 
             /////////
             info2[0] = "Card Type: ";
@@ -255,8 +268,6 @@ public class Nfc_reader extends Activity {
                 else if(techList[i].equals(MifareUltralight.class.getName())) {
                     info2[1] = "Mifare UltraLight";
                     MifareUltralight mifareUlTag = MifareUltralight.get(myTag);
-
-
                     int numberOfPages = 0;
                     // Type Info
                     switch (mifareUlTag.getType()) {
@@ -284,9 +295,7 @@ public class Nfc_reader extends Activity {
                     System.out.println(info[0]);
                     //IsWritable.setText(info[0]);
                     //ReadOnly.setText(info[1]);
-                    //Tail.setText("Tail: "+ndefTag.getMaxSize()+" Bytes");
-
-
+                    //Tail.setText("Tail: "+ndefTag.getMaxSize()+" Bytes")
                 }
 
             }
@@ -301,7 +310,7 @@ public class Nfc_reader extends Activity {
                     Thread.currentThread().interrupt();
                 }
             }
-            //finish();
+            finish();
         }
     }
     private void buildTagViews1(NdefMessage[] msgs) {
@@ -310,20 +319,23 @@ public class Nfc_reader extends Activity {
         byte[] payload = msgs[0].getRecords()[0].getPayload();
         if(payload.length!=0){
             System.out.println("payload"+payload.length);
-
             for (int i=0;i<payload.length;i++) {
                 System.out.println("payload"+payload[i]);
             }
             String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
             int languageCodeLength = payload[0] & 0063;
-
             try {
                 text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
             } catch (UnsupportedEncodingException e) {
                 Log.e("UnsupportedEncoding", e.toString());
             }
-            Nfc.setUUID(text);
-            toast("UUID"+text);
+        System.out.println("texttttt :"+text);
+            if(text!=null){
+                this.uuidr=text;
+            }
+            Nfc.setUUID(this.uuidr);
+           // toast("UUID"+this.uuidr);
+
             //toast("The UUID : \n\n"+text);
 
 
@@ -375,7 +387,6 @@ public class Nfc_reader extends Activity {
     @Override
     public void onResume(){
         super.onResume();
-
         WriteModeOn();
     }
 
