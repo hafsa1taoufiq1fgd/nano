@@ -96,7 +96,7 @@ public class Nfc_reader extends Activity {
                     msgs[i] = (NdefMessage) rawMsgs[i];
                 }
             }
-           System.out.println("mesg : ----------------- \n"+msgs);
+            System.out.println("mesg : ----------------- \n"+msgs);
             buildTagViews(msgs);
             System.out.println("Format "+intent.getType());
             System.out.println("data "+intent.getData());
@@ -137,7 +137,38 @@ public class Nfc_reader extends Activity {
                 mu.connect();
 
                 byte[] response =mu.transceive(new byte[] {(byte) 0x30,(byte)(0x10 & 0x0FF)});
+                /*********************************** Partie format***************************/
+                byte[] response2 = mu.transceive(new byte[]{(byte) 0x30, (byte) 0x03});
+                if (response2[2] != 6) {
 
+                    try{
+                        mu.transceive(new byte[]{
+                                (byte) 0xA2,
+                                (byte) 0x03,
+                                (byte) 0xE1, (byte) 0x10, (byte) 0x06, (byte) 0x00
+                        });
+                        mu.transceive(new byte[] {
+                                (byte)0xA2,
+                                (byte)0x04,
+                                (byte)0x03, (byte)0x00, (byte)0x00, (byte)0x00
+                        });
+                        mu.transceive(new byte[] {
+                                (byte)0xA2,
+                                (byte)0x05,
+                                (byte)0x00, (byte)0x00, (byte)0xFE, (byte)0x00
+                        });
+                        toast(" The card is Formatted.");
+
+
+                    } catch(Exception e){
+                        e.printStackTrace();
+                        error("Failed to format the tag.");
+
+                    }
+
+
+                }
+                /*********************************** Partie format***************************/
                 if(response[3]!=4){
                     mu.transceive(new byte[]{
                             (byte) 0xA2,(byte)(0x12 & 0x0FF),
@@ -151,11 +182,11 @@ public class Nfc_reader extends Activity {
             }
             //////////////
             if(!Pattern.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", this.uuidr)) {
-               try {
-                   System.out.println("------ write UUID ----");
-                   //Toast.makeText(this, "NO UUID Valide" , Toast.LENGTH_LONG);
-                   //toast("NO UUID Valid");
-                   //System.out.println("------ write UUID1 ----");
+                try {
+                    System.out.println("------ write UUID ----");
+                    //Toast.makeText(this, "NO UUID Valide" , Toast.LENGTH_LONG);
+                    //toast("NO UUID Valid");
+                    //System.out.println("------ write UUID1 ----");
                     write(myTag);
                 } catch (IOException e) {
                     error(e.getMessage());
@@ -329,12 +360,12 @@ public class Nfc_reader extends Activity {
             } catch (UnsupportedEncodingException e) {
                 Log.e("UnsupportedEncoding", e.toString());
             }
-        System.out.println("texttttt :"+text);
+            System.out.println("texttttt :"+text);
             if(text!=null){
                 this.uuidr=text;
             }
             Nfc.setUUID(this.uuidr);
-           // toast("UUID"+this.uuidr);
+            // toast("UUID"+this.uuidr);
 
             //toast("The UUID : \n\n"+text);
 
@@ -499,7 +530,7 @@ public class Nfc_reader extends Activity {
             nfca1.transceive(new byte[] {(byte) 0xA2,(byte)(0x10 & 0x0FF),  0x00,  0x00, (byte) 0x00, (byte) 0x04});
         }
         System.out.println("/n close NFCA1 *****************");
-         nfca1.close();
+        nfca1.close();
 
     }
 

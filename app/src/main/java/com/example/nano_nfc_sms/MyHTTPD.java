@@ -1,5 +1,7 @@
 package com.example.nano_nfc_sms;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsManager;
@@ -7,6 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Random;
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,7 +62,7 @@ public class MyHTTPD extends  NanoHTTPD{
             try {
                 session.parseBody(map);
                 System.out.println("--------- Body----------");
-                num=map.get("postData");
+                num = map.get("postData");
                 System.out.println(num);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -106,7 +113,7 @@ public class MyHTTPD extends  NanoHTTPD{
 
             }
             if (uri.equals("/sms")) {
-                String verf_code=SMS.SendSMS(num);
+                String verf_code = SMS.SendSMS(num);
                 System.out.println(verf_code);
                 NanoHTTPD.Response resp = newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json",
                         verf_code);
@@ -115,7 +122,7 @@ public class MyHTTPD extends  NanoHTTPD{
                 resp.addHeader("Access-Control-Allow-Credentials", "true");
                 resp.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
                 return resp;
-            }else{
+            } else {
                 NanoHTTPD.Response resp = newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json",
                         "esleee");
                 resp.addHeader("Access-Control-Allow-Origin", "*");
@@ -125,17 +132,29 @@ public class MyHTTPD extends  NanoHTTPD{
                 return resp;
             }
         } else {
+           /* File file = new File("/assets/marker-icon.png");
+            FileInputStream fis = null;
+            Activity mActivity;
 
-            // Response resp=new Response(Response.Status.OK,"application/json",iss);
+
+            try {
+                fis = new FileInputStream(String.valueOf(mcontext.getAssets().open("marker-icon.png")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return newFixedLengthResponse(Response.Status.OK,"image/png",fis, file.length() );*/
+
+            //Response resp=new Response(Response.Status.OK,"application/json",iss);
             NanoHTTPD.Response resp = newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json",
                     "{name:'hafsa'}");
             resp.addHeader("Access-Control-Allow-Origin", "*");
             resp.addHeader("Access-Control-Allow-Headers", "Content-Type, x-requested-with,Accept");
             resp.addHeader("Access-Control-Allow-Credentials", "true");
             resp.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
-            //String t="hh";
+            //String t="hh";*/
             return resp;
         }
+
 
     }
 

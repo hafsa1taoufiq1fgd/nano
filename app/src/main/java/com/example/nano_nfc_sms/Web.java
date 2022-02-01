@@ -12,7 +12,7 @@ import com.google.androidbrowserhelper.trusted.TwaLauncher;
 import android.os.Bundle;
 
 public class Web extends AppCompatActivity {
-    Uri t = Uri.parse("http://192.168.43.47");
+    Uri t = Uri.parse("https://stalker.noor-sbg.com:60443/");
     TwaLauncher launcher;
     private boolean mBrowserWasLaunched;
     @Override

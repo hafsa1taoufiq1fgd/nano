@@ -1,9 +1,14 @@
 package com.example.nano_nfc_sms;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.Random;
 
@@ -19,4 +24,6 @@ public class SMS {
         String codeJson="{\"code\":\""+random+"\"}";
         return codeJson;
     }
+
+
 }
