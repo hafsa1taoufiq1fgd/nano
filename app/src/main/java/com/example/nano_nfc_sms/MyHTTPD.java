@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.androidbrowserhelper.trusted.FocusActivity;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +28,7 @@ public class MyHTTPD extends  NanoHTTPD{
     public static Context mcontext;
     // MainActivity mActivity;
     String num;
+    int Die=0;
     /**
      * logger to log to.
      */
@@ -59,6 +62,7 @@ public class MyHTTPD extends  NanoHTTPD{
             return resp;
         }
         if ((method.toString()).equals("POST")) {
+             this.Die=0;
             try {
                 session.parseBody(map);
                 System.out.println("--------- Body----------");
@@ -75,17 +79,48 @@ public class MyHTTPD extends  NanoHTTPD{
                 // mcontext=mActivity.getApplicationContext();
                 System.out.println(mcontext.toString());
                 Intent i = new Intent();
-                i.setClass(mcontext, Nfc_reader.class);
+                i.setClass(mcontext, FormateNFC.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                //mcontext.
                 mcontext.startActivity(i);
                 //testm.Remove();
-                while (!Nfc.AllValuesSet()) {
+
+                /// waite to formate
+                while(!Nfc.getFormate() && Die<=10){
                     try {
+                        this.Die++;
+                        System.out.println(this.Die);
                         Thread.sleep(1000);
 
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
+                }
+                //mcontext.
+                //i.
+                //Activity t=(Activity)mcontext
+                ((Activity)mcontext).finish();
+                System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+               // ((Activity)FormateNFC).finish();
+                if(this.Die<=10) {
+                    i.setClass(mcontext, Nfc_reader.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mcontext.startActivity(i);
+                    ///
+                    this.Die=0;
+                    while (!Nfc.AllValuesSet() && this.Die<10) {
+                        try {
+                            this.Die++;
+                            System.out.println(this.Die);
+                            Thread.sleep(1000);
+
+                        } catch (InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    ((Activity)mcontext).finish();
+                    System.out.println(" HHH 2 ");
+
                 }
            /* Intent intent=new Intent(mcontext, MyService.class);
             mcontext.startService(intent);
@@ -100,15 +135,20 @@ public class MyHTTPD extends  NanoHTTPD{
                     Thread.currentThread().interrupt();
                 }
             }*/
-
+                String Response="{\"error\":\"error\"}";
+            if(this.Die<10){
+                    System.out.println(" 9l mn 10 ");
+                    Response=Nfc.JsonFormat();
+            }
                 //startService(new Intent(mcontext, MyService2.class));
                 System.out.println(Nfc.JsonFormat());
                 NanoHTTPD.Response resp = newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "application/json",
-                        Nfc.JsonFormat());
+                        Response);
                 resp.addHeader("Access-Control-Allow-Origin", "*");
                 resp.addHeader("Access-Control-Allow-Headers", "Content-Type, x-requested-with,Accept");
                 resp.addHeader("Access-Control-Allow-Credentials", "true");
                 resp.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
+
                 return resp;
 
             }

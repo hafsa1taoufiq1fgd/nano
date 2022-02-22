@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 startService(new Intent(getApplicationContext(), NanoService.class));
                 MyHTTPD.mcontext=getApplicationContext();
-                startActivity(new Intent(getApplicationContext(),Web.class));
+                //startActivity(new Intent(getApplicationContext(),Web.class));
             }
         });
     }
@@ -47,12 +47,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+        final String formatedIpAddress = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
+                (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
+        System.out.println(formatedIpAddress);
+       /* super.onResume();
         TextView textIpaddr = (TextView) findViewById(R.id.ipaddr);
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
         final String formatedIpAddress = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
                 (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        textIpaddr.setText("Please access! http://" + formatedIpAddress + ":" + PORT);
+        textIpaddr.setText("Please access! http://" + formatedIpAddress + ":" + PORT);*/
     }
     @Override
     protected void onPause() {

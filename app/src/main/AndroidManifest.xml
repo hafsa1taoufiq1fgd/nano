@@ -23,6 +23,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Nano_nfc_sms">
         <activity
+            android:name=".FormateNFC"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".Writeuuid"
             android:exported="false" />
         <activity

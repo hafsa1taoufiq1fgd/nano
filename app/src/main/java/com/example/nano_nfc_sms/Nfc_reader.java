@@ -46,12 +46,17 @@ public class Nfc_reader extends Activity {
     TextView ReadOnly;
     TextView Tail;
     Tag myTag;
+    AlertDialog alert;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc_reader);
+        //readFromIntent(getIntent());
+
         context = this;
+        MyHTTPD.mcontext=this;
         /* tvNFCContent = (TextView) findViewById(R.id.nfc_content);
         NumSerie = (TextView) findViewById(R.id.NumSerie);
         Technologies = (TextView) findViewById(R.id.Technologies);
@@ -59,14 +64,17 @@ public class Nfc_reader extends Activity {
         IsWritable = (TextView) findViewById(R.id.IsWritable);
         ReadOnly = (TextView) findViewById(R.id.ReadOnly);
         Tail = (TextView) findViewById(R.id.Tail);*/
-
+       /* this.alert=new AlertDialog.Builder(this)
+                .setTitle(" Notification ")
+                .setMessage("Plz put the NFC Again  ")
+                .setPositiveButton("OK",null)
+                .show();*/
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
             // Stop here, we definitely need NFC
             Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
             finish();
         }
-        //readFromIntent(getIntent());
 
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
@@ -81,6 +89,7 @@ public class Nfc_reader extends Activity {
         //writeTagFilters = new IntentFilter[] { tagDetected };
         ///////////////
         //////////////
+
     }
 
     private void readFromIntent(Intent intent) {
@@ -129,6 +138,7 @@ public class Nfc_reader extends Activity {
         setIntent(intent);
         readFromIntent(intent);
         readFromIntent1(intent);
+        //this.alert.dismiss();
 //        Toast.makeText(this,"action"+intent.getAction(),Toast.LENGTH_SHORT).show();
         if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())){
             myTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -138,7 +148,7 @@ public class Nfc_reader extends Activity {
 
                 byte[] response =mu.transceive(new byte[] {(byte) 0x30,(byte)(0x10 & 0x0FF)});
                 /*********************************** Partie format***************************/
-                byte[] response2 = mu.transceive(new byte[]{(byte) 0x30, (byte) 0x03});
+              /*  byte[] response2 = mu.transceive(new byte[]{(byte) 0x30, (byte) 0x03});
                 if (response2[2] != 6) {
 
                     try{
@@ -154,12 +164,15 @@ public class Nfc_reader extends Activity {
                         });
                         mu.transceive(new byte[] {
                                 (byte)0xA2,
+                                (byte)0x04,
+                                (byte)0x03, (byte)0x04, (byte)0xD8, (byte)0x00
+                        });
+                        mu.transceive(new byte[] {
+                                (byte)0xA2,
                                 (byte)0x05,
                                 (byte)0x00, (byte)0x00, (byte)0xFE, (byte)0x00
                         });
-                        toast(" The card is Formatted.");
-
-
+                        //toast(" The card is Formatted.");
                     } catch(Exception e){
                         e.printStackTrace();
                         error("Failed to format the tag.");
@@ -167,8 +180,9 @@ public class Nfc_reader extends Activity {
                     }
 
 
-                }
-                /*********************************** Partie format***************************/
+                }*/
+/*********************************** Partie format***************************/
+
                 if(response[3]!=4){
                     mu.transceive(new byte[]{
                             (byte) 0xA2,(byte)(0x12 & 0x0FF),
@@ -328,8 +342,8 @@ public class Nfc_reader extends Activity {
                     //ReadOnly.setText(info[1]);
                     //Tail.setText("Tail: "+ndefTag.getMaxSize()+" Bytes")
                 }
-
             }
+            System.out.println(Nfc.JsonFormat());
             while(!Nfc.AllValuesSet()){
                 try
                 {
@@ -412,6 +426,7 @@ public class Nfc_reader extends Activity {
     @Override
     public void onPause(){
         super.onPause();
+        overridePendingTransition(0, 0);
         WriteModeOff();
     }
 
@@ -462,6 +477,7 @@ public class Nfc_reader extends Activity {
         }
         System.out.println("yes");
         System.out.println("uuid " + uuid);
+        this.uuidr=uuid.toString();
 
         nfca.transceive(new byte[]{
                 (byte) 0x1B,
@@ -496,9 +512,12 @@ public class Nfc_reader extends Activity {
                 System.out.println(message.toString());
                 ndef.writeNdefMessage(message);
                 System.out.println("5555555555555555555555555555555555");
+                System.out.println(Nfc.JsonFormat());
+                Nfc.setUUID(this.uuidr);
                 toast("The UUID was successfully written.");
                 long id = System.currentTimeMillis();
                 ndef.close();
+                //Nfc.setUUID();
                 System.out.println("6666666666666666666666666666666");
                 System.out.println("ClosedNDEF");
             }

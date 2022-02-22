@@ -5,14 +5,22 @@ public class Nfc {
     public static String Technologies=null;
     public static String Type_card=null;
     public static String UUID=null;
+    public static Boolean Formate=false;
 
     public Nfc(){
         Numero_Serie=null;
         Technologies=null;
         Type_card=null;
         UUID=null;
+        Formate=false;
     }
 
+    public static void setFormate(){
+        Formate=true;
+    }
+    public static Boolean getFormate(){
+        return Formate;
+    }
     public static void setNumero_Serie(String numero){
         Numero_Serie=numero;
     }
@@ -42,7 +50,7 @@ public class Nfc {
     }
 
     public static boolean AllValuesSet(){
-        if(Numero_Serie!=null && Technologies!=null && Type_card!=null && UUID!=null)
+        if((Numero_Serie!=null || Technologies!=null || Type_card!=null) && UUID!=null)
             return true;
         else
             return false;
